@@ -32,9 +32,10 @@
 
 NAME="GECOS Help Channel web socket client"
 PROGRAM=/usr/bin/websockify
-PROGRAM_OPTS="localhost:6900 localhost:5900"
 PIDFILE=/var/run/gecoshc_ws_client.pid
 LOGS=/var/log/gecos/gecoshc_ws_client.log
+PROGRAM_OPTS="localhost:6900 localhost:5900 --log-file=$LOGS"
+
 
 waitpid() {
 	local pid=$1
@@ -65,7 +66,7 @@ do_start () {
 		fi
 	fi
 
-        start-stop-daemon --start --quiet -b --pidfile $PIDFILE --make-pidfile --exec $PROGRAM -- $PROGRAM_OPTS >>$LOGS 2>&1
+        start-stop-daemon --start --quiet -b --pidfile $PIDFILE --make-pidfile --exec $PROGRAM -- $PROGRAM_OPTS
 	log_end_msg $?
 }
 
