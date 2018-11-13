@@ -34,7 +34,28 @@ NAME="GECOS Help Channel web socket server"
 PROGRAM=/usr/bin/websockify
 PIDFILE=/var/run/gecoshc_ws_server.pid
 LOGS=/var/log/gecos/gecoshc_ws_server.log
-PROGRAM_OPTS="localhost:6500 localhost:5500 --log-file=$LOGS"
+PROGRAM_OPTS="-D localhost:6500 localhost:5500"
+
+# In CentOS some functions does not exists
+if [ ! -n "$(type -t log_begin_msg)" ]
+then
+	log_begin_msg() { echo "$@"; }
+fi
+
+if [ ! -n "$(type -t log_progress_msg)" ]
+then
+	log_progress_msg() { echo "$@"; }
+fi
+
+if [ ! -n "$(type -t log_daemon_msg)" ]
+then
+	log_daemon_msg() { echo "$@"; }
+fi
+
+if [ ! -n "$(type -t log_end_msg)" ]
+then
+	log_end_msg() { [ $1 -eq 0 ] && RES=OK; echo ${RES:=FAIL}; }
+fi
 
 waitpid() {
 	local pid=$1
@@ -65,8 +86,10 @@ do_start () {
 		fi
 	fi
 
-        start-stop-daemon --start --quiet -b --pidfile $PIDFILE --make-pidfile --exec $PROGRAM -- $PROGRAM_OPTS
+	start_daemon $PROGRAM $PROGRAM_OPTS >> $LOGS 2>&1
 	log_end_msg $?
+
+	pidofproc "$PROGRAM $PROGRAM_OPTS" > $PIDFILE
 }
 
 do_stop () {

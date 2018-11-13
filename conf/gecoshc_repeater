@@ -34,7 +34,28 @@ NAME="GECOS Help Channel VNC repeater"
 PROGRAM=/usr/share/gecos/helpchannel/repeater/ultravnc_repeater.pl
 PIDFILE=/var/run/gecoshc_repeater.pid
 LOGS=/var/log/gecos/gecoshc_repeater.log
-PROGRAM_OPTS="-l $LOGS"
+PROGRAM_OPTS="-d -l $LOGS"
+
+# In CentOS some functions does not exists
+if [ ! -n "$(type -t log_begin_msg)" ]
+then
+	log_begin_msg() { echo "$@"; }
+fi
+
+if [ ! -n "$(type -t log_progress_msg)" ]
+then
+	log_progress_msg() { echo "$@"; }
+fi
+
+if [ ! -n "$(type -t log_daemon_msg)" ]
+then
+	log_daemon_msg() { echo "$@"; }
+fi
+
+if [ ! -n "$(type -t log_end_msg)" ]
+then
+	log_end_msg() { [ $1 -eq 0 ] && RES=OK; echo ${RES:=FAIL}; }
+fi
 
 
 waitpid() {
@@ -66,8 +87,10 @@ do_start () {
 		fi
 	fi
 
-        start-stop-daemon --start --quiet -b --pidfile $PIDFILE --make-pidfile --exec $PROGRAM -- $PROGRAM_OPTS
+	start_daemon $PROGRAM $PROGRAM_OPTS > /dev/null 2>&1
 	log_end_msg $?
+
+	pidofproc "perl $PROGRAM $PROGRAM_OPTS" > $PIDFILE
 }
 
 do_stop () {

@@ -13,8 +13,13 @@
 # along with this program; if not, write to the Free Software
 # Foundation, Inc., 51 Franklin Street, Fifth Floor, Boston, MA  02110-1301, USA.
 
+EXTRA_DIST = nginx.conf \
+	 gecoshc_repeater \
+	 gecoshc_ws_client \
+	 gecoshc_ws_server
+
 conf_DATA = nginx.conf
 confdir = $(sysconfdir)/gecos/helpchannel
 
-EXTRA_DIST = $(default_DATA)
+
 
