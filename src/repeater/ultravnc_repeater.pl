@@ -73,6 +73,11 @@ special application.
 
 You can also set client_port via -c and server_port via -s.
 
+Use -g to check the IDs against the GECOS Control Center.
+E.g. "-g https://gecoscc.yourdomain.com/"
+
+Use -d to daemonize the repeater.
+
 Examples:
 
 	ultravnc_repeater.pl
@@ -93,6 +98,11 @@ names and security issues.
 ';
 
 use strict;
+use URI;
+use LWP::UserAgent;
+use JSON;
+use IO::Socket::SSL;
+use Proc::Daemon;
 
 if (@ARGV && $ARGV[0] =~ /-h/) {
 	print $usage;
@@ -115,9 +125,17 @@ while (@ARGV) {
 	if ($ARGV[0] =~ /^-*(ULTRAVNC_REPEATER_\w+)=(.+)/) {
 		$ENV{$1} = $2;
 		shift;
+	} elsif ($ARGV[0] eq '-g') {
+		shift;
+		$ENV{ULTRAVNC_REPEATER_GCC} = shift;
 	} elsif ($ARGV[0] eq '-l') {
 		shift;
 		$ENV{ULTRAVNC_REPEATER_LOGFILE} = shift;
+	} elsif ($ARGV[0] eq '-d') {
+		shift;
+		# Daemonice
+		#
+		Proc::Daemon::Init();
 	} elsif ($ARGV[0] eq '-p') {
 		shift;
 		$ENV{ULTRAVNC_REPEATER_PIDFILE} = shift;
@@ -487,11 +505,50 @@ sub clean_connections {
 	}
 }
 
+
+sub check_id {
+	my $id = $1;
+
+	if (!exists $ENV{ULTRAVNC_REPEATER_GCC}) {
+		return 1;
+	}
+
+	my $url = URI->new($ENV{ULTRAVNC_REPEATER_GCC}.'/help-channel-client/check');
+	$url->query_form( 'connection_code' => $id);
+
+	local $NET::HTTPS::SSL_SOCKET_CLASS = 'IO::Socket::SSL';
+
+	my $ua = new LWP::UserAgent;
+	if (exists $ENV{PERL_LWP_SSL_VERIFY_HOSTNAME} && $ENV{PERL_LWP_SSL_VERIFY_HOSTNAME} eq "0") {
+		$ua->ssl_opts( verify_hostnames => 0 ,SSL_verify_mode => 0x00);
+	}
+
+	lprint("Checking ID: ".$url->as_string);
+	my $response = $ua->get( $url );
+	if (!$response->is_success) {
+		lprint("Error checking ID:$id - ".$response->status_line);
+		return 0;
+	}
+
+
+	my $json = decode_json($response->content);
+
+	return $json->{'ok'};
+}
+
 sub do_new_client {
 	my ($sock, $buf) = @_;
 
 	if ($buf =~ /^ID:(\w+)/) {
 		my $id = $1;
+		
+		# Check ID against GECOS CC
+		if (!check_id($id)) {
+			lprint("ID could not be verified: $id.");
+			close $sock;
+			return;
+		}		
+		
 		if (exists $ID{$id} && exists $ID{$id}{client} && $ID{$id}{client} eq "0") {
 			if (!established($ID{$id}{sock})) {
 				lprint("server socket for ID:$id is no longer established, closing it.");
@@ -581,6 +638,14 @@ sub do_new_server {
 
 	if ($buf =~ /^ID:(\w+)/) {
 		my $id = $1;
+
+		# Check ID against GECOS CC
+		if (!check_id($id)) {
+			lprint("ID could not be verified: $id.");
+			close $sock;
+			return;
+		}
+
 		my $store = 1;
 		if (exists $ID{$id} && exists $ID{$id}{client} && $ID{$id}{client} eq "1") {
 			if (!established($ID{$id}{sock})) {
