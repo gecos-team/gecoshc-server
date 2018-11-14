@@ -170,6 +170,9 @@
         function xvpInit(ver) {
             var xvpbuttons;
             xvpbuttons = $D('noVNC_xvp_buttons');
+            // Force hide noVNC_xvp_buttons
+            ver = 0;
+
             if (ver >= 1) {
                 xvpbuttons.style.display = 'inline';
             } else {
