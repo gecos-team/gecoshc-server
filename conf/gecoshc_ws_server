@@ -1,0 +1,138 @@
+#!/bin/sh
+
+# Copyright (C) 2015 Junta de Andalucia <gecos@guadalinex.org>
+#
+# This program is free software; you can redistribute it and/or
+# modify it under the terms of the GNU General Public License
+# as published by the Free Software Foundation; version 2
+# of the License
+#
+# This program is distributed in the hope that it will be useful,
+# but WITHOUT ANY WARRANTY; without even the implied warranty of
+# MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.  See the
+# GNU General Public License for more details.
+#
+# You should have received a copy of the GNU General Public License
+# along with this program; if not, write to the Free Software
+# Foundation, Inc., 51 Franklin Street, Fifth Floor, Boston, MA  02110-1301, USA.
+
+### BEGIN INIT INFO
+# Provides:          gecoshc_ws_server
+# Required-Start:    $network
+# Required-Stop:     $network
+# Should-Start:      nginx gecos_gc_repeater
+# Should-Stop:       nginx gecos_gc_repeater
+# Default-Start:     2 3 4 5
+# Default-Stop:      0 1 6
+# Short-Description: Start GECOS Help Channel web socket server
+# Description:       Start GECOS Help Channel web socket server
+### END INIT INFO
+
+. /lib/lsb/init-functions
+
+NAME="GECOS Help Channel web socket server"
+PROGRAM=/usr/bin/websockify
+PIDFILE=/var/run/gecoshc_ws_server.pid
+LOGS=/var/log/gecos/gecoshc_ws_server.log
+PROGRAM_OPTS="-D localhost:6500 localhost:5500"
+
+# In CentOS some functions does not exists
+if [ ! -n "$(type -t log_begin_msg)" ]
+then
+	log_begin_msg() { echo "$@"; }
+fi
+
+if [ ! -n "$(type -t log_progress_msg)" ]
+then
+	log_progress_msg() { echo "$@"; }
+fi
+
+if [ ! -n "$(type -t log_daemon_msg)" ]
+then
+	log_daemon_msg() { echo "$@"; }
+fi
+
+if [ ! -n "$(type -t log_end_msg)" ]
+then
+	log_end_msg() { [ $1 -eq 0 ] && RES=OK; echo ${RES:=FAIL}; }
+fi
+
+waitpid() {
+	local pid=$1
+	local timeout=$2
+	local t0=$(date +"%s")
+
+	while [ -d /proc/$1 ]; do
+		sleep 0.5
+
+		if [ -n "$timeout" ]; then
+			local t1=$(date +"%s")
+			[ $(($t1-$t0)) -gt $2 ] && return 1
+		fi
+	done
+
+	return 0
+}
+
+do_start () {
+	log_begin_msg "Starting $NAME"
+
+	if [ -f "$PIDFILE" ]; then
+		if ps $(cat "$PIDFILE") >/dev/null; then
+			log_warning_msg "already running"
+			return
+		else
+			rm "$PIDFILE"
+		fi
+	fi
+
+	start_daemon $PROGRAM $PROGRAM_OPTS >> $LOGS 2>&1
+	log_end_msg $?
+
+	pidofproc "$PROGRAM $PROGRAM_OPTS" > $PIDFILE
+}
+
+do_stop () {
+	log_begin_msg "Stopping $NAME"
+
+	if [ ! -f "$PIDFILE" ]; then
+		log_warning_msg "not running"
+		return 0
+	fi
+
+	pidofproc -p "$PIDFILE" "$PROGRAM" >/dev/null
+	if [ $? -ne 0 ]; then
+		log_warning_msg "not running"
+		rm -f "$PIDFILE"
+
+	else
+		local pid=$(pidofproc -p "$PIDFILE" "$PROGRAM")
+		kill $pid
+		waitpid $pid 10
+		if [ $? -eq 1 ]; then
+			log_warning_msg "Force kill"
+			kill -9 $pid
+			rm -f "$PIDFILE"
+		fi
+	fi
+
+	log_end_msg 0
+}
+
+case $1 in
+	start)
+		do_start;;
+
+	stop)
+		do_stop;;
+
+	restart|force-reload)
+		do_stop
+		sleep 0.2
+		do_start
+		;;
+	*)
+		log_success_msg "Usage: $0 {start|stop|force-reload|restart}";;
+esac
+
+exit 0
