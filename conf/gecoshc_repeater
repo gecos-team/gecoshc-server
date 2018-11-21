@@ -31,7 +31,7 @@
 . /lib/lsb/init-functions
 
 NAME="GECOS Help Channel VNC repeater"
-PROGRAM=/usr/share/gecos/helpchannel/repeater/ultravnc_repeater.pl
+PROGRAM=/usr/bin/ultravnc_repeater
 PIDFILE=/var/run/gecoshc_repeater.pid
 LOGS=/var/log/gecos/gecoshc_repeater.log
 PROGRAM_OPTS="-d -l $LOGS"

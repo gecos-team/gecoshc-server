@@ -1,0 +1,16 @@
+# It's not recommended to modify this unit file because your changes
+# would be overwritten during the package update.
+
+[Unit]
+Description=GECOS Help Channel VNC repeater
+Wants=basic.target
+After=basic.target network.target 
+
+[Service]
+Type=forking
+ExecStart=/usr/bin/ultravnc_repeater -d -l /var/log/gecos/gecoshc_repeater.log
+PIDFile=/var/run/gecoshc_repeater.pid
+
+[Install]
+WantedBy=multi-user.target
+
