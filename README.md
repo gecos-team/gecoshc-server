@@ -41,7 +41,7 @@ Probably you will also need to open the SSL port (443) in your firewall.
 After installing is important to configure the GECOS CC address in the UVNC repeater server.
 If the GECOS CC address is not configured the system will work fine but the IDs will not be validated. That means that your installation will be at risk since anybody can use it.
 
-To configure the GECOS CC address edit the start script called "gecoshc_repeater" and add "-g https://gecoscc.yourdomain.com" to PROGRAM_OPTS.
+To configure the GECOS CC address edit the start script called "gecoshc_repeater" and add "-g https://gecoscc.yourdomain.com" to PROGRAM_OPTS in your /etc/init.d/gecoshc_repeater script. Or, in case that you use systemd, adding it to your /usr/lib/systemd/system/gecoshc_repeater.service file.
 
 ```
 # Using start scripts

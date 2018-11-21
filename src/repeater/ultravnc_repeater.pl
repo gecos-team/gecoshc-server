@@ -516,7 +516,9 @@ sub check_id {
 	my $url = URI->new($ENV{ULTRAVNC_REPEATER_GCC}.'/help-channel-client/check');
 	$url->query_form( 'connection_code' => $id);
 
-	local $NET::HTTPS::SSL_SOCKET_CLASS = 'IO::Socket::SSL';
+	$NET::HTTPS::SSL_SOCKET_CLASS = 'IO::Socket::SSL';
+	# for debuggin purposses
+	#$IO::Socket::SSL::DEBUG=3;
 
 	my $ua = new LWP::UserAgent;
 	if (exists $ENV{PERL_LWP_SSL_VERIFY_HOSTNAME} && $ENV{PERL_LWP_SSL_VERIFY_HOSTNAME} eq "0") {
@@ -527,6 +529,9 @@ sub check_id {
 	my $response = $ua->get( $url );
 	if (!$response->is_success) {
 		lprint("Error checking ID:$id - ".$response->status_line);
+		if ($response->code == 500) {
+			lprint("Probably SSL hostname verification error. Try to set PERL_LWP_SSL_VERIFY_HOSTNAME=0");
+		}
 		return 0;
 	}
 

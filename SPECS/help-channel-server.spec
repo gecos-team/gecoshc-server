@@ -38,7 +38,7 @@ This package provides the Help Channel Server for GECOS environment.
 
 Summary: GECOS - Help Channel Server
 Group: Applications/System
-Requires: nginx, openssl, python-websockify, perl-URI, perl-Crypt-SSLeay, perl-IO-Socket-SSL, perl-Proc-Daemon, perl-JSON, redhat-lsb-core, perl-libwww-perl
+Requires: nginx, openssl, python-websockify, perl-URI, perl-Crypt-SSLeay, perl-IO-Socket-SSL, perl-Proc-Daemon, perl-JSON, redhat-lsb-core, perl-libwww-perl, perl-LWP-Protocol-https
 
 %description -n gecos-help-channel-server
 This package provides the Help Channel Server for GECOS environment.
@@ -104,6 +104,8 @@ then
   systemctl restart firewalld
 fi
 
+# Enable NGINX internal connections on SELinux
+setsebool -P httpd_can_network_connect 1
 
 
 %postun -n gecos-help-channel-server
