@@ -8,7 +8,7 @@ After=basic.target network.target
 
 [Service]
 Type=forking
-ExecStart=/usr/bin/ultravnc_repeater -d -l /var/log/gecos/gecoshc_repeater.log
+ExecStart=/usr/bin/ultravnc_repeater -p /var/run/gecoshc_repeater.pid -d -l /var/log/gecos/gecoshc_repeater.log
 PIDFile=/var/run/gecoshc_repeater.pid
 
 [Install]
