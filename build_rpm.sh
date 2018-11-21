@@ -25,12 +25,18 @@ then
 fi
 
 
-RPMBUILDINSTALLED=`rpm -qa | grep rpm-build | wc -l`
+RPMBUILDINSTALLED=`rpm -qa | grep rpm-build | grep -v rpm-build-libs | wc -l`
 if [ "$RPMBUILDINSTALLED" -eq 0 ]
 then
 	echo "rpm-build must be installed. Please execute: sudo yum install rpm-build"
 	exit
 fi
+
+if [ ! -d "$HOME/rpmbuild" ]
+then
+	mkdir -p ~/rpmbuild/{BUILD,RPMS,SOURCES,SPECS,SRPMS}
+fi
+
 
 
 
