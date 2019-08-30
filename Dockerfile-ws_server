@@ -1,0 +1,11 @@
+FROM debian:stable
+
+RUN apt-get update \
+	&& apt-get install -y websockify 
+
+RUN useradd -r gecoshc
+
+USER gecoshc
+
+CMD ["/usr/bin/websockify", "0.0.0.0:6500", "gecoshc_repeater:5500"]
+

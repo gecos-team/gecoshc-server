@@ -1,0 +1,44 @@
+# Configurable environment variables:
+# GECOSCC_SERVER_URL - The GECOS Control Center URL.
+version: '3'
+services:
+  repeater:
+    container_name: gecoshc_repeater
+    restart: always
+    build:
+      context: .
+      dockerfile: Dockerfile-repeater
+    command: ["ultravnc_repeater", "-l", "/var/log/gecos/gecoshc_repeater.log", "-g", "${GECOSCC_SERVER_URL}"]
+
+  ws_client:
+    container_name: gecoshc_ws_client
+    restart: always
+    build:
+      context: .
+      dockerfile: Dockerfile-ws_client
+    depends_on:
+      - repeater
+
+  ws_server:
+    container_name: gecoshc_ws_server
+    restart: always
+    build:
+      context: .
+      dockerfile: Dockerfile-ws_server
+    depends_on:
+      - repeater
+
+  nginx:
+    container_name: gecoshc_nginx
+    restart: always
+    build:
+      context: .
+      dockerfile: Dockerfile-nginx
+    ports:
+      - '443:443'
+    depends_on:
+      - repeater
+      - ws_client
+      - ws_server
+
+

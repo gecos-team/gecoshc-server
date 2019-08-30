@@ -1,0 +1,22 @@
+FROM debian:stable
+
+RUN apt-get update \
+	&& apt-get install -y perl libcrypt-ssleay-perl libjson-perl liburi-perl \
+		libproc-daemon-perl libwww-perl \
+	&& mkdir -p /usr/share/gecos/helpchannel/repeater/ 
+
+COPY src/repeater/ultravnc_repeater.pl /usr/share/gecos/helpchannel/repeater/
+RUN chmod 755 /usr/share/gecos/helpchannel/repeater/ultravnc_repeater.pl \
+	&& ln -s /usr/share/gecos/helpchannel/repeater/ultravnc_repeater.pl /usr/local/bin/ultravnc_repeater
+
+RUN useradd -r gecoshc
+
+RUN mkdir -p /var/log/gecos/ \
+	&& touch /var/log/gecos/gecoshc_repeater.log \
+	&& chown gecoshc:gecoshc /var/log/gecos/gecoshc_repeater.log
+
+
+USER gecoshc
+
+CMD ["ultravnc_repeater", "-l", "/var/log/gecos/gecoshc_repeater.log"]
+
