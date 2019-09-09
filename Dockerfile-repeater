@@ -1,15 +1,15 @@
-FROM debian:stable
+FROM alpine:latest
 
-RUN apt-get update \
-	&& apt-get install -y perl libcrypt-ssleay-perl libjson-perl liburi-perl \
-		libproc-daemon-perl libwww-perl \
+RUN apk update \
+	&& apk add perl perl-net-ssleay perl-json perl-uri \
+		perl-libwww perl-io-socket-ssl \
 	&& mkdir -p /usr/share/gecos/helpchannel/repeater/ 
 
 COPY src/repeater/ultravnc_repeater.pl /usr/share/gecos/helpchannel/repeater/
 RUN chmod 755 /usr/share/gecos/helpchannel/repeater/ultravnc_repeater.pl \
 	&& ln -s /usr/share/gecos/helpchannel/repeater/ultravnc_repeater.pl /usr/local/bin/ultravnc_repeater
 
-RUN useradd -r gecoshc
+RUN adduser -D -H gecoshc
 
 RUN mkdir -p /var/log/gecos/ \
 	&& touch /var/log/gecos/gecoshc_repeater.log \
