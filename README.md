@@ -57,6 +57,22 @@ proxy_read_timeout     300;
 proxy_connect_timeout  300;
 ```
 
+# Docker
+Instead of using a RHEL/CentOS server, you may prefer using Docker to run the GECOS Help Channel Server.
+So, you will need a Linux machine with Docker (https://www.docker.com/) and the docker-compose (https://docs.docker.com/compose/install/) script installed.
+
+To build the Docker images for the GECOS Help Channel Server you may execute:
+```
+docker-compose build
+```
+
+To run the Docker images you may execute:
+```
+export GECOSCC_SERVER_URL=https://gecoscc.yourdomain.com
+docker-compose up
+```
+
+
 
 
 

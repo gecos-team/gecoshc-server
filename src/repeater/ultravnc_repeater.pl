@@ -102,7 +102,6 @@ use URI;
 use LWP::UserAgent;
 use JSON;
 use IO::Socket::SSL;
-use Proc::Daemon;
 
 if (@ARGV && $ARGV[0] =~ /-h/) {
 	print $usage;
@@ -135,6 +134,7 @@ while (@ARGV) {
 		shift;
 		# Daemonice
 		#
+        require Proc::Daemon;
 		Proc::Daemon::Init();
 	} elsif ($ARGV[0] eq '-p') {
 		shift;

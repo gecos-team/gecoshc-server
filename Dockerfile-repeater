@@ -1,0 +1,22 @@
+FROM alpine:latest
+
+RUN apk update \
+	&& apk add perl perl-net-ssleay perl-json perl-uri \
+		perl-libwww perl-io-socket-ssl \
+	&& mkdir -p /usr/share/gecos/helpchannel/repeater/ 
+
+COPY src/repeater/ultravnc_repeater.pl /usr/share/gecos/helpchannel/repeater/
+RUN chmod 755 /usr/share/gecos/helpchannel/repeater/ultravnc_repeater.pl \
+	&& ln -s /usr/share/gecos/helpchannel/repeater/ultravnc_repeater.pl /usr/local/bin/ultravnc_repeater
+
+RUN adduser -D -H gecoshc
+
+RUN mkdir -p /var/log/gecos/ \
+	&& touch /var/log/gecos/gecoshc_repeater.log \
+	&& chown gecoshc:gecoshc /var/log/gecos/gecoshc_repeater.log
+
+
+USER gecoshc
+
+CMD ["ultravnc_repeater", "-l", "/var/log/gecos/gecoshc_repeater.log"]
+

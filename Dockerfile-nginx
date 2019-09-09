@@ -1,0 +1,25 @@
+FROM nginx:1.10.2-alpine
+
+RUN rm /etc/nginx/conf.d/default.conf \
+	&& mkdir -p /etc/gecos/helpchannel  \
+	&& mkdir -p /usr/share/gecos/helpchannel \
+	&& apk update \
+	&& apk add openssl
+
+COPY conf/nginx.conf /etc/nginx/conf.d/
+
+RUN mv /etc/nginx/conf.d/nginx.conf /etc/nginx/conf.d/helpchannel.conf \
+	&& sed -i 's/localhost:6500/gecoshc_ws_server:6500/g' /etc/nginx/conf.d/helpchannel.conf \
+	&& sed -i 's/localhost:6900/gecoshc_ws_client:6900/g' /etc/nginx/conf.d/helpchannel.conf \
+	&& openssl genrsa -out /etc/gecos/helpchannel/ssl.key 1024 2> /dev/null \
+    && openssl req -new -subj /CN=$(hostname)/ -batch \
+        -key /etc/gecos/helpchannel/ssl.key -out /etc/gecos/helpchannel/ssl.csr \
+    && openssl x509 -req -days 3650 -in /etc/gecos/helpchannel/ssl.csr \
+        -signkey /etc/gecos/helpchannel/ssl.key \
+        -out /etc/gecos/helpchannel/ssl.pem 2> /dev/null \
+    && chown root:root /etc/gecos/helpchannel/ssl.key /etc/gecos/helpchannel/ssl.pem \
+    && chmod 600 /etc/gecos/helpchannel/ssl.key /etc/gecos/helpchannel/ssl.pem
+	
+ADD src/web /usr/share/gecos/helpchannel/web
+
+
