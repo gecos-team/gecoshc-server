@@ -1,0 +1,15 @@
+# It's not recommended to modify this unit file because your changes
+# would be overwritten during the package update.
+
+[Unit]
+Description=GECOS Help Channel web socket server
+Wants=basic.target
+After=basic.target network.target 
+
+[Service]
+Type=simple
+ExecStart=/usr/bin/websockify localhost:6500 localhost:5500
+
+[Install]
+WantedBy=multi-user.target
+

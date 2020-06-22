@@ -15,8 +15,11 @@
 
 EXTRA_DIST = nginx.conf \
 	 gecoshc_repeater \
+	 gecoshc_repeater.service \
 	 gecoshc_ws_client \
-	 gecoshc_ws_server
+	 gecoshc_ws_client.service  \
+	 gecoshc_ws_server \
+	 gecoshc_ws_server.service 
 
 conf_DATA = nginx.conf
 confdir = $(sysconfdir)/gecos/helpchannel

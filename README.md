@@ -25,12 +25,14 @@ To install this project use the RPM package by:
  yum install gecos-help-channel-server-<version>.noarch.rpm
 ``
 
+IMPORTANT: Probably you will need to add epel repository to your system before installing gecos-help-channel-server
+
 After installing you will need to restart the computer or start the services manually:
 ```
-/etc/init.d/nginx start
-/etc/init.d/gecoshc_repeater start
-/etc/init.d/gecoshc_ws_client start
-/etc/init.d/gecoshc_ws_server start
+ systemctl start nginx
+ systemctl start gecoshc_repeater
+ systemctl start gecoshc_ws_client
+ systemctl start gecoshc_ws_server
 ```
 
 Probably you will also need to open the SSL port (443) in your firewall.
@@ -39,12 +41,19 @@ Probably you will also need to open the SSL port (443) in your firewall.
 After installing is important to configure the GECOS CC address in the UVNC repeater server.
 If the GECOS CC address is not configured the system will work fine but the IDs will not be validated. That means that your installation will be at risk since anybody can use it.
 
-To configure the GECOS CC address edit the start script called "gecoshc_repeater" and add "-g https://gecoscc.yourdomain.com" to PROGRAM_OPTS.
+To configure the GECOS CC address edit the start script called "gecoshc_repeater" and add "-g https://gecoscc.yourdomain.com" to PROGRAM_OPTS in your /etc/init.d/gecoshc_repeater script. Or, in case that you use systemd, adding it to your /usr/lib/systemd/system/gecoshc_repeater.service file.
 
 ```
+# Using start scripts
 /etc/init.d/gecoshc_repeater stop
 sed -i 's|PROGRAM_OPTS="-d -l $LOGS"|PROGRAM_OPTS="-d -l $LOGS -g https://gecoscc.yourdomain.com"|g' /etc/init.d/gecoshc_repeater 
 /etc/init.d/gecoshc_repeater start
+
+# Using systemd
+ systemctl stop gecoshc_repeater
+ sed -i 's|ExecStart=/usr/bin/ultravnc_repeater -p /var/run/gecoshc_repeater.pid -d -l /var/log/gecos/gecoshc_repeater.log|ExecStart=/usr/bin/ultravnc_repeater -p /var/run/gecoshc_repeater.pid -d -l /var/log/gecos/gecoshc_repeater.log -g https://gecoscc.yourdomain.com"|g' /usr/lib/systemd/system/gecoshc_repeater.service
+ systemctl daemon-reload
+ systemctl start gecoshc_repeater
 ```
 
 If your SSL certifcate is not valid you may have to set PERL_LWP_SSL_VERIFY_HOSTNAME environment variable to 0 (it depends on your Perl version).

@@ -38,7 +38,7 @@ This package provides the Help Channel Server for GECOS environment.
 
 Summary: GECOS - Help Channel Server
 Group: Applications/System
-Requires: nginx, openssl, python-websockify, perl-URI, perl-Crypt-SSLeay, perl-IO-Socket-SSL, perl-Proc-Daemon, perl-JSON, redhat-lsb-core
+Requires: nginx, openssl, python-websockify, perl-URI, perl-Crypt-SSLeay, perl-IO-Socket-SSL, perl-Proc-Daemon, perl-JSON, redhat-lsb-core, perl-libwww-perl, perl-LWP-Protocol-https
 
 %description -n gecos-help-channel-server
 This package provides the Help Channel Server for GECOS environment.
@@ -58,6 +58,11 @@ mkdir -p $RPM_BUILD_ROOT/etc/init.d/
 install -m 0755 conf/gecoshc_repeater $RPM_BUILD_ROOT/etc/init.d/gecoshc_repeater
 install -m 0755 conf/gecoshc_ws_client $RPM_BUILD_ROOT/etc/init.d/gecoshc_ws_client
 install -m 0755 conf/gecoshc_ws_server $RPM_BUILD_ROOT/etc/init.d/gecoshc_ws_server
+
+mkdir -p $RPM_BUILD_ROOT/usr/lib/systemd/system/
+install -m 0644 conf/gecoshc_repeater.service $RPM_BUILD_ROOT/usr/lib/systemd/system/gecoshc_repeater.service
+install -m 0644 conf/gecoshc_ws_client.service $RPM_BUILD_ROOT/usr/lib/systemd/system/gecoshc_ws_client.service
+install -m 0644 conf/gecoshc_ws_server.service $RPM_BUILD_ROOT/usr/lib/systemd/system/gecoshc_ws_server.service
 
 mkdir -p $RPM_BUILD_ROOT/var/log/gecos
 
@@ -85,10 +90,22 @@ then
     chmod 600       $CONFDIR/ssl.key $CONFDIR/ssl.pem
 fi
 
+ln -s /usr/share/gecos/helpchannel/repeater/ultravnc_repeater.pl /usr/bin/ultravnc_repeater
+
 chkconfig nginx on
 chkconfig gecoshc_repeater on
 chkconfig gecoshc_ws_client on
 chkconfig gecoshc_ws_server on
+
+if [ -f /usr/bin/firewall-cmd ]
+then
+  # Open HTTPS port
+  firewall-cmd --permanent --add-service=https
+  systemctl restart firewalld
+fi
+
+# Enable NGINX internal connections on SELinux
+setsebool -P httpd_can_network_connect 1
 
 
 %postun -n gecos-help-channel-server
@@ -96,6 +113,7 @@ if [ "$1" = "0" ]; then
     NXCONFDIR=/etc/nginx/conf.d/
     rm -f $NXCONFDIR/helpchannel.conf
     service nginx restart
+	rm -f /usr/bin/ultravnc_repeater
 fi
 
 %clean -n gecos-help-channel-server
@@ -108,6 +126,7 @@ rm -rf $RPM_BUILD_ROOT
 /etc/init.d/gecoshc_ws_server
 /etc/gecos/*
 /usr/share/gecos/*
+/usr/lib/systemd/system/*.service
 %defattr(0755,root,root)
 %config /usr/share/gecos/helpchannel/repeater/ultravnc_repeater.pl
 %dir /var/log/gecos
