@@ -29,10 +29,10 @@ IMPORTANT: Probably you will need to add epel repository to your system before i
 
 After installing you will need to restart the computer or start the services manually:
 ```
-sudo service nginx start
-sudo service gecoshc_repeater start
-sudo service gecoshc_ws_client start
-sudo service gecoshc_ws_server start
+ systemctl start nginx
+ systemctl start gecoshc_repeater
+ systemctl start gecoshc_ws_client
+ systemctl start gecoshc_ws_server
 ```
 
 Probably you will also need to open the SSL port (443) in your firewall.
@@ -50,10 +50,10 @@ sed -i 's|PROGRAM_OPTS="-d -l $LOGS"|PROGRAM_OPTS="-d -l $LOGS -g https://gecosc
 /etc/init.d/gecoshc_repeater start
 
 # Using systemd
-sudo systemctl stop gecoshc_repeater
-sudo sed -i 's|ExecStart=/usr/bin/ultravnc_repeater -p /var/run/gecoshc_repeater.pid -d -l /var/log/gecos/gecoshc_repeater.log|ExecStart=/usr/bin/ultravnc_repeater -p /var/run/gecoshc_repeater.pid -d -l /var/log/gecos/gecoshc_repeater.log -g https://gecoscc.yourdomain.com"|g' /usr/lib/systemd/system/gecoshc_repeater.service
-sudo systemctl daemon-reload
-sudo systemctl start gecoshc_repeater
+ systemctl stop gecoshc_repeater
+ sed -i 's|ExecStart=/usr/bin/ultravnc_repeater -p /var/run/gecoshc_repeater.pid -d -l /var/log/gecos/gecoshc_repeater.log|ExecStart=/usr/bin/ultravnc_repeater -p /var/run/gecoshc_repeater.pid -d -l /var/log/gecos/gecoshc_repeater.log -g https://gecoscc.yourdomain.com"|g' /usr/lib/systemd/system/gecoshc_repeater.service
+ systemctl daemon-reload
+ systemctl start gecoshc_repeater
 ```
 
 If your SSL certifcate is not valid you may have to set PERL_LWP_SSL_VERIFY_HOSTNAME environment variable to 0 (it depends on your Perl version).
