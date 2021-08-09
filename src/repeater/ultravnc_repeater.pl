@@ -505,6 +505,14 @@ sub clean_connections {
 	}
 }
 
+sub check_standalone_client {
+
+	if ($_[0] =~ m/-SDC/) {
+		return 1;
+	}
+	return 0;
+}
+
 
 sub check_id {
 	my $id = $1;
@@ -547,12 +555,14 @@ sub do_new_client {
 	if ($buf =~ /^ID:(\w+)/) {
 		my $id = $1;
 		
-		# Check ID against GECOS CC
-		if (!check_id($id)) {
-			lprint("ID could not be verified: $id.");
-			close $sock;
-			return;
-		}		
+		if (!check_standalone_client($buf)) {
+			# Check ID against GECOS CC
+			if (!check_id($id)) {
+				lprint("ID could not be verified: $id.");
+				close $sock;
+				return;
+			}
+		}
 		
 		if (exists $ID{$id} && exists $ID{$id}{client} && $ID{$id}{client} eq "0") {
 			if (!established($ID{$id}{sock})) {
@@ -644,11 +654,13 @@ sub do_new_server {
 	if ($buf =~ /^ID:(\w+)/) {
 		my $id = $1;
 
-		# Check ID against GECOS CC
-		if (!check_id($id)) {
-			lprint("ID could not be verified: $id.");
-			close $sock;
-			return;
+		if (!check_standalone_client($buf)) {
+			# Check ID against GECOS CC
+			if (!check_id($id)) {
+				lprint("ID could not be verified: $id.");
+				close $sock;
+				return;
+			}
 		}
 
 		my $store = 1;
