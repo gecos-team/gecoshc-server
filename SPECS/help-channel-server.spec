@@ -133,4 +133,4 @@ rm -rf $RPM_BUILD_ROOT
 
 %changelog -n gecos-help-channel-server
 
-
+echo 'serverkey' > /etc/hcpass

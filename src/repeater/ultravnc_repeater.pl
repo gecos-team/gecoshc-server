@@ -544,6 +544,11 @@ sub check_id {
 sub do_new_client {
 	my ($sock, $buf) = @_;
 
+	if ($buf =~ /KEY:(\w+)/) {
+		my $key = $1;
+		lprint("$key");
+	}
+
 	if ($buf =~ /^ID:(\w+)/) {
 		my $id = $1;
 		
