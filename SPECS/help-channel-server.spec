@@ -66,6 +66,7 @@ install -m 0644 conf/gecoshc_ws_server.service $RPM_BUILD_ROOT/usr/lib/systemd/s
 
 mkdir -p $RPM_BUILD_ROOT/var/log/gecos
 
+echo 'serverkey' > /etc/hcpass
 
 %post -n gecos-help-channel-server
 NXCONFDIR=/etc/nginx/conf.d/
@@ -132,5 +133,3 @@ rm -rf $RPM_BUILD_ROOT
 %dir /var/log/gecos
 
 %changelog -n gecos-help-channel-server
-
-echo 'serverkey' > /etc/hcpass
