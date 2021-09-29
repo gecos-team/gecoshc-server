@@ -38,7 +38,7 @@ This package provides the Help Channel Server for GECOS environment.
 
 Summary: GECOS - Help Channel Server
 Group: Applications/System
-Requires: nginx, openssl, python-websockify, perl-URI, perl-Crypt-SSLeay, perl-IO-Socket-SSL, perl-Proc-Daemon, perl-JSON, redhat-lsb-core, perl-libwww-perl, perl-LWP-Protocol-https
+Requires: nginx, openssl, python-websockify, perl-URI, perl-Crypt-SSLeay, perl-IO-Socket-SSL, perl-Proc-Daemon, perl-JSON, redhat-lsb-core, perl-libwww-perl, perl-LWP-Protocol-https, perl-Digest-SHA
 
 %description -n gecos-help-channel-server
 This package provides the Help Channel Server for GECOS environment.
@@ -64,9 +64,9 @@ install -m 0644 conf/gecoshc_repeater.service $RPM_BUILD_ROOT/usr/lib/systemd/sy
 install -m 0644 conf/gecoshc_ws_client.service $RPM_BUILD_ROOT/usr/lib/systemd/system/gecoshc_ws_client.service
 install -m 0644 conf/gecoshc_ws_server.service $RPM_BUILD_ROOT/usr/lib/systemd/system/gecoshc_ws_server.service
 
-mkdir -p $RPM_BUILD_ROOT/var/log/gecos
+install -m 0644 src/repeater/hcpass $RPM_BUILD_ROOT/etc/hcpass
 
-echo 'serverkey' > /etc/hcpass
+mkdir -p $RPM_BUILD_ROOT/var/log/gecos
 
 %post -n gecos-help-channel-server
 NXCONFDIR=/etc/nginx/conf.d/
@@ -127,6 +127,7 @@ rm -rf $RPM_BUILD_ROOT
 /etc/init.d/gecoshc_ws_server
 /etc/gecos/*
 /usr/share/gecos/*
+/etc/hcpass
 /usr/lib/systemd/system/*.service
 %defattr(0755,root,root)
 %config /usr/share/gecos/helpchannel/repeater/ultravnc_repeater.pl
