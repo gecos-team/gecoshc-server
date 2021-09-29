@@ -103,6 +103,7 @@ use LWP::UserAgent;
 use JSON;
 use IO::Socket::SSL;
 use Proc::Daemon;
+use Digest::SHA qw(sha256_hex);
 
 if (@ARGV && $ARGV[0] =~ /-h/) {
 	print $usage;
@@ -647,7 +648,9 @@ sub check_key {
 
 	$line =~ s/\R//g;
 
-	my $r = $key cmp $line;
+	my $hashed = sha256_hex($line);
+
+	my $r = $key cmp $hashed;
 	if ($r == 0) {
 		return 1;
 	}
