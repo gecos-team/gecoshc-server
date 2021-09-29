@@ -3,7 +3,7 @@ SUBDIRS = include \
           css 
 
 scripts_DATA = index.html \
-               preindex.html
+               connect.html
 
 scriptsdir = $(datadir)/gecos/helpchannel/web
 
