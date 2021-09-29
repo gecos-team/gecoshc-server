@@ -31,5 +31,6 @@ src/web/Makefile
 src/web/include/Makefile
 src/web/include/chrome-app/Makefile
 src/web/images/Makefile
+src/web/css/Makefile
 ])
 AC_OUTPUT
