@@ -1,7 +1,9 @@
 SUBDIRS = include \
-          images
+          images \
+          css 
 
-scripts_DATA = index.html
+scripts_DATA = index.html \
+               connect.html
 
 scriptsdir = $(datadir)/gecos/helpchannel/web
 
