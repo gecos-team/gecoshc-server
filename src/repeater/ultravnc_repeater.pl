@@ -103,6 +103,7 @@ use LWP::UserAgent;
 use JSON;
 use IO::Socket::SSL;
 use Proc::Daemon;
+use Digest::SHA qw(sha256_hex);
 
 if (@ARGV && $ARGV[0] =~ /-h/) {
 	print $usage;
@@ -638,8 +639,38 @@ sub do_new_client {
 	}
 }
 
+sub check_key {
+	my $key = $1;
+
+	open my $file, '<', "/etc/hcpass"; 
+	my $line = <$file>; 
+	close $file;
+
+	$line =~ s/\R//g;
+
+	my $r = $key cmp $line;
+	if ($r == 0) {
+		return 1;
+	}
+	return 0;
+}
+
 sub do_new_server {
 	my ($sock, $buf) = @_;
+
+	if ($buf =~ /KEY:(\w+)/) {
+		my $key = $1;
+
+		if (!check_key($key)) {
+			lprint('The server key is wrong.');
+			close $sock;
+			return;
+		}
+	}
+	else {
+		close $sock;
+		return;
+	}
 
 	if ($buf =~ /^ID:(\w+)/) {
 		my $id = $1;
