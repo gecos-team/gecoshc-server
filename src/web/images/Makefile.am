@@ -20,7 +20,8 @@ scripts_DATA = alt.png \
                mouse_right.png \
                screen_320x460.png \
                screen_700x700.png \
-               tab.png
+               tab.png \
+               logo.png
 
 scriptsdir = $(datadir)/gecos/helpchannel/web/images
 

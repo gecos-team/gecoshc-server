@@ -1,4 +1,5 @@
-scripts_DATA = ultravnc_repeater.pl
+scripts_DATA = ultravnc_repeater.pl \
+               hcpass
 
 scriptsdir = $(datadir)/gecos/helpchannel/repeater
 
